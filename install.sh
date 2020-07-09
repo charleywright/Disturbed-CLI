@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This script is purely to install the CLI, and nothing else
+
 CYAN='\033[0;36m'
 NC='\033[0m'
 clear

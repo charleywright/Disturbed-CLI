@@ -5,15 +5,9 @@ CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-# sudo apt install python3-pip python3-setuptools python3 python3-venv
-# python3 -m pip install --user pipx
-# /home/$USER/.local/bin/pipx install protontricks
-
-# protontricks -c "COMMAND_TO_RUN" 271590     - Runs a specified command under the GTAV Wine prefix
-
 ds__credits(){
   clear
-  echo "$CYAN"
+  printf "$CYAN"
   echo " /\$\$\$\$\$\$\$  /\$\$\$\$\$\$  /\$\$\$\$\$\$  /\$\$\$\$\$\$\$\$ /\$\$   /\$\$ /\$\$\$\$\$\$\$  /\$\$\$\$\$\$\$  /\$\$\$\$\$\$\$\$ /\$\$\$\$\$\$\$"
   echo "| \$\$__  \$\$|_  \$\$_/ /\$\$__  \$\$|__  \$\$__/| \$\$  | \$\$| \$\$__  \$\$| \$\$__  \$\$| \$\$_____/| \$\$__  \$\$"
   echo "| \$\$  \ \$\$  | \$\$  | \$\$  \__/   | \$\$   | \$\$  | \$\$| \$\$  \ \$\$| \$\$  \ \$\$| \$\$      | \$\$  \ \$\$"
@@ -22,12 +16,12 @@ ds__credits(){
   echo "| \$\$  | \$\$  | \$\$   /\$\$  \ \$\$   | \$\$   | \$\$  | \$\$| \$\$  \ \$\$| \$\$  \ \$\$| \$\$      | \$\$  | \$\$"
   echo "| \$\$\$\$\$\$\$/ /\$\$\$\$\$\$|  \$\$\$\$\$\$/   | \$\$   |  \$\$\$\$\$\$/| \$\$  | \$\$| \$\$\$\$\$\$\$/| \$\$\$\$\$\$\$\$| \$\$\$\$\$\$\$/"
   echo "|_______/ |______/ \______/    |__/    \______/ |__/  |__/|_______/ |________/|_______/"
-  echo "$NC"
+  printf "$NC \n"
 }
 
 ds__install(){
   ds__credits
-  echo "$CYAN"
+  printf "$CYAN"
   echo "What platform do you want to install Disturbed for?"
   echo "[0] Steam client via Proton"
   echo "[1] Epic Games Store via Lutris (currently unsupported)"
@@ -36,26 +30,101 @@ ds__install(){
   if [ "$platform" = "0" ];then
     sudo apt install python3-pip python3-setuptools python3-venv python3.8-venv
     python3 -m pip install --user pipx
-    /home/$USER/.local/bin/pipx install protontricks
+
+    CMD="export PATH=\"/home/$USER/.local/bin:\$PATH\""
+    if ! grep -xq "$CMD" /home/$USER/.bashrc;then
+        if [ -f "/home/$USER/.bashrc" ];then
+            echo "\n$CMD" >> /home/$USER/.bashrc 
+        fi
+    fi
+    
+    if ! grep -xq "$CMD" /home/$USER/.zshrc;then
+        if [ -f "/home/$USER/.zshrc" ];then
+            echo "\n$CMD" >> /home/$USER/.zshrc 
+        fi
+    fi
+    /home/$USER/.local/bin/pipx install protontricks --force
+    printf "$CYAN"
     wget -P /home/$USER/Downloads/ https://aka.ms/vs/16/release/vc_redist.x64.exe
-    protontricks -c "wine /home/$USER/Downloads/vc_redist.x64.exe" 271590
+    export WINEESYNC=1
+    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Downloads/vc_redist.x64.exe" 271590
     rm /home/$USER/Downloads/vc_redist.x64.exe
     sudo apt-get install p7zip-full -y
     clear
-    echo "Donwload Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [enter]"
+    echo "Download Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [Enter]"
     read enter
     sudo 7z e /home/$USER/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
+    sudo rm /home/$USER/Disturbed/Changelog.txt
     ds__credits
-    echo "$CYAN"
-    echo "Installed."
+    printf "$CYAN"
+    echo "Installed. Please restart your terminal to apply changes to PATH"
   elif [ "$platform" = "1" ];then
     echo "Epic Games Store"
   fi
 }
 
+ds__launch(){
+  if [ "$1" = "-r" ] || [ "$1" = "--recovery" ];then
+    ds__credits
+    printf "$CYAN"
+    echo "Launching recovery"
+    export WINEESYNC=1
+    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe" 271590
+  else
+    ds__credits
+    printf "$CYAN"
+    echo "Launching menu"
+    export WINEESYNC=1
+    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher.exe" 271590
+  fi
+}
+
+ds__update(){
+  if [ "$1" = "-c" ] || [ "$1" = "--cli" ];then
+    ds__credits
+    printf "$CYAN"
+    echo "Updating CLI"
+    echo "Downloading..."
+    echo "$0.tmp"
+    if ! sudo wget --quiet --output-document="/home/$USER/Disturbed/disturbed.tmp" https://raw.githubusercontent.com/charleywright/Disturbed-Linux/master/disturbed ; then
+      echo "Failed: Error while trying to wget new version!"
+      echo "File requested: https://raw.githubusercontent.com/charleywright/Disturbed-Linux/master/disturbed"
+      exit 1
+    fi
+    echo "Downloaded"
+    sudo chown charley $0.tmp
+    sudo chmod +x $0.tmp
+    echo "Set file permissions"
+    sudo cat > updateScript.sh << EOF
+      #!/bin/bash
+      # Overwrite old file with new
+      if sudo mv "/home/$USER/Disturbed/disturbed.tmp" "/home/$USER/Disturbed/disturbed"; then
+        echo "Done. Update complete."
+        sudo rm \$0
+      else
+        echo "Failed!"
+      fi
+EOF
+
+  echo -n "Inserting update process..."
+  exec /bin/bash updateScript.sh
+  else
+    ds__credits
+    printf "$CYAN"
+    echo "Download Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [Enter]"
+    read enter
+    sudo rm /home/$USER/Disturbed/DLauncher.exe /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe /home/$USER/Disturbed/Labels\ List.txt /home/$USER/Disturbed/Unlocks\ List.txt
+    sudo 7z e /home/$USER/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
+    sudo rm /home/$USER/Disturbed/Changelog.txt
+    ds__credits
+    printf "$CYAN"
+    echo "Updated Disturbed succesfully"
+  fi
+}
+
 ds__help(){
   ds__credits
-  echo "$CYAN"
+  printf "$CYAN"
   echo "Disturbed CLI for Linux made by Joder#9009"
   echo "Usage: disturbed <OPTION> [ARGS]\n"
 
@@ -70,17 +139,19 @@ ds__help(){
   echo "Manage installation:"
   echo "  install                         Installs Disturbed and configures dependencies"
   echo "  update                          Installs the latest version of Disturbed"
-  echo "  update --cli, update -c         Installs the latest version of the CLI"
+  echo "  update --cli, update -c         Installs the latest version of the CLI (currently unsupported)"
   echo "  remove                          Uninstalls Disturbed and it's dependencies"
   echo "  remove --cli, remove -c         Uninstalls this CLI and Disturbed"
 }
 
 ds(){
-  if [ "$1" = "" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ];then
+  local cmdname=$1; shift
+  if type "ds__$cmdname" >/dev/null 2>&1; then
+    "ds__$cmdname" "$@"
+  elif [ "$1" = "" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ];then
     ds__help
-  elif [ "$1" = "install" ];then
-    ds__install "$@"
   fi
+  printf "$NC"
   exit
 }
 
