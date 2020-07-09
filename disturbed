@@ -68,14 +68,22 @@ ds__launch(){
     ds__credits
     printf "$CYAN"
     echo "Launching recovery"
-    export WINEESYNC=1
-    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe" 271590
+    if [ ! -f "/home/$USER/Disturbed/DLauncher_Recovery_Edition.exe" ];then
+      echo "Disturbed is not installed. Install it using disturbed install"
+    else
+      export WINEESYNC=1
+      /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe" 271590
+    fi
   else
     ds__credits
     printf "$CYAN"
     echo "Launching menu"
-    export WINEESYNC=1
-    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher.exe" 271590
+    if [ ! -f "/home/$USER/Disturbed/DLauncher.exe" ];then
+      echo "Disturbed is not installed. Install it using disturbed install"
+    else
+      export WINEESYNC=1
+      /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher.exe" 271590
+    fi    
   fi
 }
 
@@ -122,6 +130,32 @@ EOF
   fi
 }
 
+ds__remove(){
+  if [ "$1" = "-c" ] || [ "$1" = "--cli" ];then
+    ds__credits
+    printf "$CYAN"
+    echo "Removing Disturbed and Disturbed-CLI"
+    sudo cat > updateScript.sh << EOF
+      #!/bin/bash
+      # Overwrite old file with new
+      if sudo rm -Rf /home/$USER/Disturbed; then
+        echo "Uninstalled."
+        sudo rm \$0
+      else
+        echo "Failed!"
+      fi
+EOF
+  echo -n "Inserting delete script"
+  exec /bin/bash updateScript.sh
+  else
+    ds__credits
+    printf "$CYAN"
+    echo "Removing Disturbed"
+    sudo rm /home/$USER/Disturbed/DLauncher.exe /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe /home/$USER/Disturbed/Labels\ List.txt /home/$USER/Disturbed/Unlocks\ List.txt
+    echo "Removed Disturbed succesfully"
+  fi
+}
+
 ds__help(){
   ds__credits
   printf "$CYAN"
@@ -145,13 +179,18 @@ ds__help(){
 }
 
 ds(){
-  local cmdname=$1; shift
-  if type "ds__$cmdname" >/dev/null 2>&1; then
-    "ds__$cmdname" "$@"
-  elif [ "$1" = "" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ];then
+  if [ "$1" = "" ];then
     ds__help
+  else
+    local cmdname=$1; shift
+    if type "ds__$cmdname" >/dev/null 2>&1; then
+      "ds__$cmdname" "$@"
+    elif [ "$1" = "-h" ] || [ "$1" = "--help" ];then
+      ds__help
+    fi
+    printf "$NC"
+    exit
   fi
-  printf "$NC"
   exit
 }
 

@@ -21,7 +21,7 @@ if [ ! -d "/home/$USER/Disturbed" ];then
     echo "- Created Disturbed directory"
 fi
 
-if [ -f "/home/$USER/Disturbed/Disturbed" ];then
+if [ -f "/home/$USER/Disturbed/disturbed" ];then
     sudo rm /home/$USER/Disturbed/disturbed
 fi
 sudo wget -P /home/$USER/Disturbed/ -q https://raw.githubusercontent.com/charleywright/Disturbed-Linux/master/disturbed
