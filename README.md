@@ -1,6 +1,6 @@
 # Disturbed CLI
 
-Disturbed CLI is a CLI for the Disturbed mod menu, and aims to support it on Linux. 
+Disturbed CLI is a CLI for the Disturbed mod menu, and aims to support it on Linux. Currently launching the menu works, along with the recovery menu, but the part of Windows being used to calculate your HWID seems to change every launch. Also, injecting dosen't work because of a memory offset issue.
 
 ### Installation
 
