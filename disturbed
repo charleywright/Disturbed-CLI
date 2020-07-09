@@ -74,6 +74,17 @@ ds__launch(){
       export WINEESYNC=1
       /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Disturbed/DLauncher_Recovery_Edition.exe" 271590
     fi
+  elif [ "$1" = "--cheat-engine" ];then
+    ds__credits
+    export WINEESYNC=1
+    if [ ! -f "/home/charley/.steam/steam/steamapps/compatdata/271590/pfx/drive_c/Program\ Files/Cheat\ Engine\ 7.1/Cheat\ Engine.exe" ];then
+      if [ ! -f "/home/$USER/Downloads/CheatEngine71.exe" ];then
+        wget -P /home/$USER/Downloads/ https://dkvlxw8mnrbvq.cloudfront.net/o94p7_47zq30b/CheatEngine71.exe
+      fi
+      /home/$USER/.local/bin/protontricks -c "wine /home/$USER/Downloads/CheatEngine71.exe" 271590
+    fi
+    /home/$USER/.local/bin/protontricks -c "wine /home/$USER/.steam/steam/steamapps/compatdata/271590/pfx/drive_c/Program\ Files/Cheat\ Engine\ 7.1/Cheat\ Engine.exe" 271590
+    exit
   else
     ds__credits
     printf "$CYAN"
