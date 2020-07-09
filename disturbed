@@ -3,7 +3,7 @@
 ProgName=$(basename $0)
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # sudo apt install python3-pip python3-setuptools python3 python3-venv
 # python3 -m pip install --user pipx
@@ -44,9 +44,6 @@ ds__install(){
     clear
     echo "Donwload Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [enter]"
     read enter
-    if [ ! -d "~/Disturbed" ];then
-      sudo mkdir ~/Disturbed
-    fi
     sudo 7z e ~/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
     ds__credits
     echo "$CYAN"
@@ -87,8 +84,10 @@ ds(){
   exit
 }
 
-echo "$1"
-if [ "$0" = "./Disturbed" ] || [ "$0" = "disturbed" ] || [ "$0" = "Disturbed" ];then
+basename "$0" > /dev/null
+f="$(basename -- $0)"
+
+if [ "$0" = "./Disturbed" ] || [ "$0" = "disturbed" ] || [ "$0" = "Disturbed" ] || [ "$f" = "disturbed" ];then
     ds "$@"
 else
     echo "Please don't change the file name"
