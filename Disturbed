@@ -1,0 +1,95 @@
+#!/bin/sh
+
+ProgName=$(basename $0)
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# sudo apt install python3-pip python3-setuptools python3 python3-venv
+# python3 -m pip install --user pipx
+# ~/.local/bin/pipx install protontricks
+
+# protontricks -c "COMMAND_TO_RUN" 271590     - Runs a specified command under the GTAV Wine prefix
+
+ds__credits(){
+  clear
+  echo "$CYAN"
+  echo " /\$\$\$\$\$\$\$  /\$\$\$\$\$\$  /\$\$\$\$\$\$  /\$\$\$\$\$\$\$\$ /\$\$   /\$\$ /\$\$\$\$\$\$\$  /\$\$\$\$\$\$\$  /\$\$\$\$\$\$\$\$ /\$\$\$\$\$\$\$"
+  echo "| \$\$__  \$\$|_  \$\$_/ /\$\$__  \$\$|__  \$\$__/| \$\$  | \$\$| \$\$__  \$\$| \$\$__  \$\$| \$\$_____/| \$\$__  \$\$"
+  echo "| \$\$  \ \$\$  | \$\$  | \$\$  \__/   | \$\$   | \$\$  | \$\$| \$\$  \ \$\$| \$\$  \ \$\$| \$\$      | \$\$  \ \$\$"
+  echo "| \$\$  | \$\$  | \$\$  |  \$\$\$\$\$\$    | \$\$   | \$\$  | \$\$| \$\$\$\$\$\$\$/| \$\$\$\$\$\$\$ | \$\$\$\$\$   | \$\$  | \$\$"
+  echo "| \$\$  | \$\$  | \$\$   \____  \$\$   | \$\$   | \$\$  | \$\$| \$\$__  \$\$| \$\$__  \$\$| \$\$__/   | \$\$  | \$\$"
+  echo "| \$\$  | \$\$  | \$\$   /\$\$  \ \$\$   | \$\$   | \$\$  | \$\$| \$\$  \ \$\$| \$\$  \ \$\$| \$\$      | \$\$  | \$\$"
+  echo "| \$\$\$\$\$\$\$/ /\$\$\$\$\$\$|  \$\$\$\$\$\$/   | \$\$   |  \$\$\$\$\$\$/| \$\$  | \$\$| \$\$\$\$\$\$\$/| \$\$\$\$\$\$\$\$| \$\$\$\$\$\$\$/"
+  echo "|_______/ |______/ \______/    |__/    \______/ |__/  |__/|_______/ |________/|_______/"
+  echo "$NC"
+}
+
+ds__install(){
+  ds__credits
+  echo "$CYAN"
+  echo "What platform do you want to install Disturbed for?"
+  echo "[0] Steam client via Proton"
+  echo "[1] Epic Games Store via Lutris (currently unsupported)"
+  read platform;
+
+  if [ "$platform" = "0" ];then
+    sudo apt install python3-pip python3-setuptools python3-venv python3.8-venv
+    python3 -m pip install --user pipx
+    ~/.local/bin/pipx install protontricks
+    wget -P ~/Downloads/ https://aka.ms/vs/16/release/vc_redist.x64.exe
+    protontricks -c "wine ~/Downloads/vc_redist.x64.exe" 271590
+    rm ~/Downloads/vc_redist.x64.exe
+    sudo apt-get install p7zip-full -y
+    clear
+    echo "Donwload Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [enter]"
+    read enter
+    if [ ! -d "~/Disturbed" ];then
+      sudo mkdir ~/Disturbed
+    fi
+    sudo 7z e ~/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
+    ds__credits
+    echo "$CYAN"
+    echo "Installed."
+  elif [ "$platform" = "1" ];then
+    echo "Epic Games Store"
+  fi
+}
+
+ds__help(){
+  ds__credits
+  echo "$CYAN"
+  echo "Disturbed CLI for Linux made by Joder#9009"
+  echo "Usage: disturbed <OPTION> [ARGS]\n"
+
+  echo "Info:"
+  echo "  -h, --help                      Displays this menu"
+  echo "  -v, --version                   Displays the current version of the CLI and Disturbed"
+
+  echo "Launch Disturbed:"
+  echo "  launch                          Launches Disturbed"
+  echo "  launch -r, launch --recovery    Launches Disturbed recovery"
+
+  echo "Manage installation:"
+  echo "  install                         Installs Disturbed and configures dependencies"
+  echo "  update                          Installs the latest version of Disturbed"
+  echo "  update --cli, update -c         Installs the latest version of the CLI"
+  echo "  remove                          Uninstalls Disturbed and it's dependencies"
+  echo "  remove --cli, remove -c         Uninstalls this CLI and Disturbed"
+}
+
+ds(){
+  if [ "$1" = "" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ];then
+    ds__help
+  elif [ "$1" = "install" ];then
+    ds__install "$@"
+  fi
+  exit
+}
+
+echo "$1"
+if [ "$0" = "./Disturbed" ] || [ "$0" = "disturbed" ] || [ "$0" = "Disturbed" ];then
+    ds "$@"
+else
+    echo "Please don't change the file name"
+fi
