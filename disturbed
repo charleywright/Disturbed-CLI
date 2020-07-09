@@ -7,7 +7,7 @@ NC='\033[0m'
 
 # sudo apt install python3-pip python3-setuptools python3 python3-venv
 # python3 -m pip install --user pipx
-# ~/.local/bin/pipx install protontricks
+# /home/$USER/.local/bin/pipx install protontricks
 
 # protontricks -c "COMMAND_TO_RUN" 271590     - Runs a specified command under the GTAV Wine prefix
 
@@ -36,15 +36,15 @@ ds__install(){
   if [ "$platform" = "0" ];then
     sudo apt install python3-pip python3-setuptools python3-venv python3.8-venv
     python3 -m pip install --user pipx
-    ~/.local/bin/pipx install protontricks
-    wget -P ~/Downloads/ https://aka.ms/vs/16/release/vc_redist.x64.exe
-    protontricks -c "wine ~/Downloads/vc_redist.x64.exe" 271590
-    rm ~/Downloads/vc_redist.x64.exe
+    /home/$USER/.local/bin/pipx install protontricks
+    wget -P /home/$USER/Downloads/ https://aka.ms/vs/16/release/vc_redist.x64.exe
+    protontricks -c "wine /home/$USER/Downloads/vc_redist.x64.exe" 271590
+    rm /home/$USER/Downloads/vc_redist.x64.exe
     sudo apt-get install p7zip-full -y
     clear
     echo "Donwload Disturbed from here - https://www.w1tch.pro/Disturbed.7z, and place it in your downloads folder. When done, press [enter]"
     read enter
-    sudo 7z e ~/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
+    sudo 7z e /home/$USER/Downloads/Disturbed.7z -o/home/$USER/Disturbed/ -y
     ds__credits
     echo "$CYAN"
     echo "Installed."
@@ -85,9 +85,8 @@ ds(){
 }
 
 basename "$0" > /dev/null
-f="$(basename -- $0)"
 
-if [ "$0" = "./Disturbed" ] || [ "$0" = "disturbed" ] || [ "$0" = "Disturbed" ] || [ "$f" = "disturbed" ];then
+if [ "$0" = "./Disturbed" ] || [ "$0" = "disturbed" ] || [ "$0" = "Disturbed" ] || [ "$(basename -- $0)" = "disturbed" ];then
     ds "$@"
 else
     echo "Please don't change the file name"
